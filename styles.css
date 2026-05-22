@@ -22,6 +22,7 @@ body {
   font-family: "Tektur", system-ui, sans-serif;
   font-weight: 500;
   text-transform: uppercase;
+  overflow-x: hidden;
 }
 
 body.modal-open {
@@ -92,16 +93,56 @@ textarea {
   align-items: center;
   width: var(--nav);
   height: 56px;
-  padding: 0 33px;
+  padding: 0 40px;
   background: var(--ink);
   color: var(--paper);
   letter-spacing: 0.1em;
   font-size: 14px;
 }
 
-.nav-group {
+.location-group {
   display: flex;
-  gap: 48px;
+  align-items: center;
+  gap: 7px;
+  color: var(--paper);
+  font-size: 13px;
+  letter-spacing: 0.1em;
+}
+
+.location-mark {
+  position: relative;
+  display: inline-grid;
+  grid-template-columns: repeat(3, 3px);
+  grid-template-rows: repeat(3, 3px);
+  flex: 0 0 auto;
+  width: 9px;
+  height: 9px;
+}
+
+.location-mark span {
+  width: 3px;
+  height: 3px;
+  background: var(--acid);
+}
+
+.location-mark span:nth-child(1) {
+  grid-column: 1;
+  grid-row: 2;
+}
+
+.location-mark span:nth-child(2) {
+  grid-column: 2;
+  grid-row: 1;
+}
+
+.location-mark span:nth-child(3) {
+  grid-column: 2;
+  grid-row: 3;
+}
+
+.location-mark span:nth-child(4) {
+  grid-column: 3;
+  grid-row: 2;
 }
 
 .nav-inner a {
@@ -117,6 +158,8 @@ textarea {
 .nav-contact {
   justify-self: end;
   color: var(--acid);
+  font-size: 13px;
+  letter-spacing: 0.1em;
 }
 
 .mark-link {
@@ -152,8 +195,6 @@ main {
 }
 
 .name-field {
-  --name-x: 50%;
-  --name-y: 50%;
   position: relative;
   margin: 0 auto;
   color: var(--ink);
@@ -168,51 +209,51 @@ main {
   user-select: none;
 }
 
-.name-field::before {
-  content: "";
-  position: absolute;
-  z-index: 2;
-  inset: -8% -4%;
-  pointer-events: none;
-  opacity: 0;
-  background:
-    repeating-conic-gradient(from 0deg, var(--acid) 0 25%, transparent 0 100%),
-    radial-gradient(circle at var(--name-x) var(--name-y), rgba(213, 254, 0, 0.86), transparent 44%);
-  background-position: 0 0, 0 0;
-  background-size: 18px 18px, 100% 100%;
-  -webkit-mask-image: radial-gradient(circle at var(--name-x) var(--name-y), #000 0 22%, rgba(0, 0, 0, 0.92) 31%, transparent 46%);
-  mask-image: radial-gradient(circle at var(--name-x) var(--name-y), #000 0 22%, rgba(0, 0, 0, 0.92) 31%, transparent 46%);
-  transition: opacity 140ms ease;
-}
-
 .name-line {
   display: flex;
   justify-content: center;
+}
+
+.letter {
+  --fall-x: 0px;
+  --fall-rotate: 0deg;
+  position: relative;
+  display: inline-block;
+  perspective: 420px;
+}
+
+.letter::before {
+  content: attr(data-letter);
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  color: transparent;
+  opacity: 0;
+  -webkit-text-stroke: 0.018em var(--ink);
+  text-stroke: 0.018em var(--ink);
+  transition: opacity 120ms ease;
+}
+
+.letter-face {
   position: relative;
   z-index: 1;
-}
-
-.name-line span {
   display: inline-block;
+  color: var(--ink);
+  transform: translate3d(0, 0, 0) rotate(0deg);
+  transform-origin: 50% 86%;
+  transition:
+    transform 920ms cubic-bezier(0.17, 0.84, 0.24, 1),
+    opacity 620ms ease 220ms;
+  will-change: transform, opacity;
 }
 
-.name-field.is-active::before {
-  animation: pixel-shift 520ms steps(4, end) infinite;
+.letter.is-falling::before {
   opacity: 1;
 }
 
-@keyframes pixel-shift {
-  0% {
-    background-position: 0 0, 0 0;
-  }
-
-  50% {
-    background-position: 9px 6px, 0 0;
-  }
-
-  100% {
-    background-position: 18px 18px, 0 0;
-  }
+.letter.is-falling .letter-face {
+  opacity: 0;
+  transform: translate3d(var(--fall-x), 118vh, 0) rotate(var(--fall-rotate));
 }
 
 .category-row {
@@ -463,8 +504,13 @@ main {
     font-size: 12px;
   }
 
-  .nav-group {
-    gap: 20px;
+  .location-group,
+  .nav-contact {
+    font-size: 11px;
+  }
+
+  .location-group {
+    gap: 6px;
   }
 
   .hero {
