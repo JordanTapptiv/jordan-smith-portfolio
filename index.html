@@ -17,6 +17,8 @@
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
+    <div class="cursor-dot" aria-hidden="true"><span>View</span></div>
+
     <header class="site-nav" aria-label="Primary navigation">
       <nav class="nav-inner">
         <div class="nav-group" aria-label="Portfolio sections">
@@ -51,13 +53,13 @@
       </section>
 
       <section id="work" class="work-grid" aria-label="Selected work">
-        <article class="work-card" tabindex="0" aria-label="Work example one"></article>
-        <article class="work-card" tabindex="0" aria-label="Work example two"></article>
-        <article class="work-card" tabindex="0" aria-label="Work example three"></article>
-        <article class="work-card" tabindex="0" aria-label="Work example four"></article>
-        <article class="work-card" tabindex="0" aria-label="Work example five"></article>
-        <article class="work-card" tabindex="0" aria-label="Work example six"></article>
-        <article class="work-card" tabindex="0" aria-label="Work example seven"></article>
+        <article class="work-card" tabindex="0" aria-label="View work example one" data-work-title="Work Example 01"></article>
+        <article class="work-card" tabindex="0" aria-label="View work example two" data-work-title="Work Example 02"></article>
+        <article class="work-card" tabindex="0" aria-label="View work example three" data-work-title="Work Example 03"></article>
+        <article class="work-card" tabindex="0" aria-label="View work example four" data-work-title="Work Example 04"></article>
+        <article class="work-card" tabindex="0" aria-label="View work example five" data-work-title="Work Example 05"></article>
+        <article class="work-card" tabindex="0" aria-label="View work example six" data-work-title="Work Example 06"></article>
+        <article class="work-card" tabindex="0" aria-label="View work example seven" data-work-title="Work Example 07"></article>
       </section>
 
       <section id="contact" class="contact-section" aria-labelledby="contact-title">
@@ -90,6 +92,14 @@
       </a>
       <a href="#contact">Contact</a>
     </footer>
+
+    <div class="work-modal" role="dialog" aria-modal="true" aria-labelledby="modal-title" hidden>
+      <button class="modal-close" type="button" aria-label="Close work preview">Close</button>
+      <figure class="modal-frame">
+        <div class="modal-art" role="img" aria-label="Expanded work preview"></div>
+        <figcaption id="modal-title">Work Example</figcaption>
+      </figure>
+    </div>
 
     <script src="script.js"></script>
   </body>

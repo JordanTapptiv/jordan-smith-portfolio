@@ -1,65 +1,107 @@
 const nameField = document.querySelector(".name-field");
-const letters = Array.from(document.querySelectorAll(".name-line span"));
+const cursor = document.querySelector(".cursor-dot");
+const workCards = Array.from(document.querySelectorAll(".work-card"));
+const modal = document.querySelector(".work-modal");
+const modalTitle = document.querySelector("#modal-title");
+const modalClose = document.querySelector(".modal-close");
 
-let pointerX = 0;
-let pointerY = 0;
-let ticking = false;
+let cursorX = 0;
+let cursorY = 0;
+let cursorTicking = false;
+let previousFocus = null;
 
-const resetLetters = () => {
-  nameField?.classList.remove("is-active");
-  letters.forEach((letter) => {
-    letter.style.removeProperty("--tx");
-    letter.style.removeProperty("--ty");
-    letter.style.removeProperty("--skew");
-    letter.style.removeProperty("--glow");
-  });
+const hasFinePointer = window.matchMedia("(pointer: fine)").matches;
+
+const moveCursor = () => {
+  cursor.style.transform = `translate3d(${cursorX}px, ${cursorY}px, 0) translate(-50%, -50%)`;
+  cursorTicking = false;
 };
 
-const renderInteraction = () => {
-  const fieldRect = nameField.getBoundingClientRect();
-  const centerX = fieldRect.left + fieldRect.width / 2;
-  const centerY = fieldRect.top + fieldRect.height / 2;
-  const reticleX = `${(pointerX - centerX) * 0.08}px`;
-  const reticleY = `${(pointerY - centerY) * 0.08}px`;
+if (cursor && hasFinePointer) {
+  window.addEventListener("pointermove", (event) => {
+    cursorX = event.clientX;
+    cursorY = event.clientY;
+    cursor.classList.add("is-visible");
 
-  nameField.style.setProperty("--reticle-x", reticleX);
-  nameField.style.setProperty("--reticle-y", reticleY);
-
-  letters.forEach((letter) => {
-    const rect = letter.getBoundingClientRect();
-    const letterX = rect.left + rect.width / 2;
-    const letterY = rect.top + rect.height / 2;
-    const deltaX = pointerX - letterX;
-    const deltaY = pointerY - letterY;
-    const distance = Math.hypot(deltaX, deltaY);
-    const strength = Math.max(0, 1 - distance / 190);
-    const direction = deltaX < 0 ? 1 : -1;
-
-    letter.style.setProperty("--tx", `${direction * strength * 9}px`);
-    letter.style.setProperty("--ty", `${Math.sin(deltaY * 0.025) * strength * 7}px`);
-    letter.style.setProperty("--skew", `${direction * strength * 7}deg`);
-    letter.style.setProperty(
-      "--glow",
-      strength > 0.05
-        ? `${direction * -3 * strength}px 0 0 rgba(213, 254, 0, ${0.9 * strength}), ${direction * 4 * strength}px 0 0 rgba(31, 31, 29, ${0.35 * strength})`
-        : "none"
-    );
-  });
-
-  ticking = false;
-};
-
-if (nameField && window.matchMedia("(pointer: fine)").matches) {
-  nameField.addEventListener("pointermove", (event) => {
-    pointerX = event.clientX;
-    pointerY = event.clientY;
-    nameField.classList.add("is-active");
-
-    if (!ticking) {
-      window.requestAnimationFrame(renderInteraction);
-      ticking = true;
+    if (!cursorTicking) {
+      window.requestAnimationFrame(moveCursor);
+      cursorTicking = true;
     }
   });
 
-  nameField.addEventListener("pointerleave", resetLetters);
+  document.addEventListener("pointerleave", () => {
+    cursor.classList.remove("is-visible");
+  });
 }
+
+if (nameField && hasFinePointer) {
+  nameField.addEventListener("pointermove", (event) => {
+    const rect = nameField.getBoundingClientRect();
+    const x = ((event.clientX - rect.left) / rect.width) * 100;
+    const y = ((event.clientY - rect.top) / rect.height) * 100;
+
+    nameField.style.setProperty("--name-x", `${x}%`);
+    nameField.style.setProperty("--name-y", `${y}%`);
+    nameField.classList.add("is-active");
+  });
+
+  nameField.addEventListener("pointerleave", () => {
+    nameField.classList.remove("is-active");
+    nameField.style.removeProperty("--name-x");
+    nameField.style.removeProperty("--name-y");
+  });
+}
+
+const openModal = (card) => {
+  if (!modal || !modalTitle) return;
+
+  previousFocus = document.activeElement;
+  modalTitle.textContent = card.dataset.workTitle || "Work Example";
+  modal.hidden = false;
+  document.body.classList.add("modal-open");
+  modalClose?.focus();
+};
+
+const closeModal = () => {
+  if (!modal) return;
+
+  modal.hidden = true;
+  document.body.classList.remove("modal-open");
+
+  if (previousFocus instanceof HTMLElement) {
+    previousFocus.focus();
+  }
+};
+
+workCards.forEach((card) => {
+  card.addEventListener("pointerenter", () => {
+    cursor?.classList.add("is-viewing");
+  });
+
+  card.addEventListener("pointerleave", () => {
+    cursor?.classList.remove("is-viewing");
+  });
+
+  card.addEventListener("click", () => openModal(card));
+
+  card.addEventListener("keydown", (event) => {
+    if (event.key === "Enter" || event.key === " ") {
+      event.preventDefault();
+      openModal(card);
+    }
+  });
+});
+
+modalClose?.addEventListener("click", closeModal);
+
+modal?.addEventListener("click", (event) => {
+  if (event.target === modal) {
+    closeModal();
+  }
+});
+
+window.addEventListener("keydown", (event) => {
+  if (event.key === "Escape" && modal && !modal.hidden) {
+    closeModal();
+  }
+});
