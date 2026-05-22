@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="Portfolio website for Jordan Smith, featuring decks, illustration, email, UI/UX, and web work."
+    />
+    <title>Jordan Smith Portfolio</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,800&family=Tektur:wght@500;600&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header class="site-nav" aria-label="Primary navigation">
+      <nav class="nav-inner">
+        <div class="nav-group" aria-label="Portfolio sections">
+          <a href="#work">Work</a>
+          <a href="#top">About</a>
+        </div>
+        <a class="mark-link" href="#top" aria-label="Jordan Smith home">
+          <span class="brand-mark" aria-hidden="true"></span>
+        </a>
+        <a class="nav-contact" href="#contact">Contact</a>
+      </nav>
+    </header>
+
+    <main id="top">
+      <section class="hero" aria-labelledby="hero-title">
+        <h1 id="hero-title" class="name-field" aria-label="Jordan Smith">
+          <span class="name-line" aria-hidden="true">
+            <span>J</span><span>O</span><span>R</span><span>D</span><span>A</span><span>N</span>
+          </span>
+          <span class="name-line" aria-hidden="true">
+            <span>S</span><span>M</span><span>I</span><span>T</span><span>H</span>
+          </span>
+        </h1>
+
+        <ul class="category-row" aria-label="Work categories">
+          <li>Decks</li>
+          <li>Illustration</li>
+          <li>Email</li>
+          <li>UI/UX</li>
+          <li>Web</li>
+        </ul>
+      </section>
+
+      <section id="work" class="work-grid" aria-label="Selected work">
+        <article class="work-card" tabindex="0" aria-label="Work example one"></article>
+        <article class="work-card" tabindex="0" aria-label="Work example two"></article>
+        <article class="work-card" tabindex="0" aria-label="Work example three"></article>
+        <article class="work-card" tabindex="0" aria-label="Work example four"></article>
+        <article class="work-card" tabindex="0" aria-label="Work example five"></article>
+        <article class="work-card" tabindex="0" aria-label="Work example six"></article>
+        <article class="work-card" tabindex="0" aria-label="Work example seven"></article>
+      </section>
+
+      <section id="contact" class="contact-section" aria-labelledby="contact-title">
+        <div class="contact-copy">
+          <p class="section-kicker">Contact</p>
+          <h2 id="contact-title">Let’s build the next thing.</h2>
+        </div>
+        <form class="contact-form" action="mailto:hello@example.com" method="post" enctype="text/plain">
+          <label>
+            <span>Name</span>
+            <input type="text" name="name" autocomplete="name" required />
+          </label>
+          <label>
+            <span>Email</span>
+            <input type="email" name="email" autocomplete="email" required />
+          </label>
+          <label class="message-field">
+            <span>Message</span>
+            <textarea name="message" rows="5" required></textarea>
+          </label>
+          <button type="submit">Send</button>
+        </form>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <a class="footer-brand" href="#top" aria-label="Jordan Smith home">
+        <span class="brand-mark" aria-hidden="true"></span>
+        <span>Jordan Smith</span>
+      </a>
+      <a href="#contact">Contact</a>
+    </footer>
+
+    <script src="script.js"></script>
+  </body>
+</html>
