@@ -13,6 +13,11 @@ const carouselNext = document.querySelector(".carousel-next");
 
 let cursorX = 0;
 let cursorY = 0;
+let previousCursorX = 0;
+let previousCursorY = 0;
+let cursorVelocityX = 0;
+let cursorVelocityY = 0;
+let hasCursorPosition = false;
 let cursorTicking = false;
 let previousFocus = null;
 let activeSlides = [];
@@ -21,6 +26,7 @@ let touchStartX = 0;
 let touchStartY = 0;
 
 const hasFinePointer = window.matchMedia("(pointer: fine)").matches;
+const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
 const moveCursor = () => {
   cursor.style.transform = `translate3d(${cursorX}px, ${cursorY}px, 0) translate(-50%, -50%)`;
@@ -29,6 +35,11 @@ const moveCursor = () => {
 
 if (cursor && hasFinePointer) {
   window.addEventListener("pointermove", (event) => {
+    cursorVelocityX = hasCursorPosition ? event.clientX - previousCursorX : 0;
+    cursorVelocityY = hasCursorPosition ? event.clientY - previousCursorY : 0;
+    previousCursorX = event.clientX;
+    previousCursorY = event.clientY;
+    hasCursorPosition = true;
     cursorX = event.clientX;
     cursorY = event.clientY;
     cursor.classList.add("is-visible");
@@ -44,32 +55,159 @@ if (cursor && hasFinePointer) {
   });
 }
 
-const knockLetter = (letter, index, clientX) => {
-  if (letter.classList.contains("is-falling")) return;
+const initializeNamePhysics = () => {
+  if (!nameField || !nameLetters.length || prefersReducedMotion) return;
 
-  const rect = letter.getBoundingClientRect();
-  const letterCenter = rect.left + rect.width / 2;
-  const direction = clientX < letterCenter ? 1 : -1;
-  const offset = direction * (70 + (index % 3) * 26);
-  const rotation = direction * (18 + (index % 4) * 8);
+  const fieldRect = nameField.getBoundingClientRect();
+  const bounds = {
+    minX: -fieldRect.left,
+    maxX: window.innerWidth - fieldRect.left,
+    minY: -fieldRect.top,
+    maxY: window.innerHeight - fieldRect.top,
+  };
 
-  letter.style.setProperty("--fall-x", `${offset}px`);
-  letter.style.setProperty("--fall-rotate", `${rotation}deg`);
-  letter.classList.add("is-falling");
-};
+  const bodies = nameLetters.map((letter) => {
+    const rect = letter.getBoundingClientRect();
 
-if (nameField) {
-  nameLetters.forEach((letter, index) => {
-    if (hasFinePointer) {
-      letter.addEventListener("pointerenter", (event) => {
-        knockLetter(letter, index, event.clientX);
+    return {
+      element: letter,
+      x: rect.left - fieldRect.left,
+      y: rect.top - fieldRect.top,
+      width: rect.width,
+      height: rect.height,
+      vx: 0,
+      vy: 0,
+      angle: 0,
+      angularVelocity: 0,
+    };
+  });
+
+  nameField.style.height = `${fieldRect.height}px`;
+  nameField.classList.add("has-physics");
+
+  const renderBody = (body) => {
+    body.element.style.transform = `translate3d(${body.x}px, ${body.y}px, 0) rotate(${body.angle}deg)`;
+  };
+
+  bodies.forEach(renderBody);
+
+  const pushBody = (body, clientX, clientY, impulseX, impulseY) => {
+    const bodyCenterX = fieldRect.left + body.x + body.width / 2;
+    const bodyCenterY = fieldRect.top + body.y + body.height / 2;
+    const distance = Math.hypot(clientX - bodyCenterX, clientY - bodyCenterY);
+    const radius = Math.max(body.width, body.height) * 0.62;
+
+    if (distance > radius) return;
+
+    const fallbackX = clientX < bodyCenterX ? 1 : -1;
+    const fallbackY = clientY < bodyCenterY ? 1 : -1;
+    const speed = Math.hypot(impulseX, impulseY);
+    const force = Math.max(10, Math.min(42, speed * 1.55));
+    const nx = speed > 0.2 ? impulseX / speed : fallbackX;
+    const ny = speed > 0.2 ? impulseY / speed : fallbackY;
+
+    body.vx += nx * force;
+    body.vy += ny * force;
+    body.angularVelocity += (nx - ny) * 1.8;
+  };
+
+  if (hasFinePointer) {
+    nameField.addEventListener("pointermove", (event) => {
+      bodies.forEach((body) => {
+        pushBody(body, event.clientX, event.clientY, cursorVelocityX, cursorVelocityY);
       });
-    }
+    });
+  }
 
+  nameLetters.forEach((letter, index) => {
     letter.addEventListener("click", (event) => {
-      knockLetter(letter, index, event.clientX);
+      const body = bodies[index];
+      const rect = letter.getBoundingClientRect();
+      const xDirection = event.clientX < rect.left + rect.width / 2 ? 1 : -1;
+
+      pushBody(body, event.clientX, event.clientY, xDirection * 28, -8);
     });
   });
+
+  const resolveLetterCollisions = () => {
+    for (let i = 0; i < bodies.length; i += 1) {
+      for (let j = i + 1; j < bodies.length; j += 1) {
+        const a = bodies[i];
+        const b = bodies[j];
+        const ax = a.x + a.width / 2;
+        const ay = a.y + a.height / 2;
+        const bx = b.x + b.width / 2;
+        const by = b.y + b.height / 2;
+        const overlapX = (a.width + b.width) / 2 - Math.abs(ax - bx);
+        const overlapY = (a.height + b.height) / 2 - Math.abs(ay - by);
+
+        if (overlapX <= 0 || overlapY <= 0) continue;
+
+        if (overlapX < overlapY) {
+          const direction = ax < bx ? -1 : 1;
+          a.x += (overlapX / 2) * direction;
+          b.x -= (overlapX / 2) * direction;
+          const temp = a.vx;
+          a.vx = b.vx * 0.82;
+          b.vx = temp * 0.82;
+          a.angularVelocity -= direction * 0.6;
+          b.angularVelocity += direction * 0.6;
+        } else {
+          const direction = ay < by ? -1 : 1;
+          a.y += (overlapY / 2) * direction;
+          b.y -= (overlapY / 2) * direction;
+          const temp = a.vy;
+          a.vy = b.vy * 0.82;
+          b.vy = temp * 0.82;
+          a.angularVelocity += direction * 0.6;
+          b.angularVelocity -= direction * 0.6;
+        }
+      }
+    }
+  };
+
+  const step = () => {
+    bodies.forEach((body) => {
+      body.x += body.vx;
+      body.y += body.vy;
+      body.angle += body.angularVelocity;
+
+      body.vx *= 0.925;
+      body.vy *= 0.925;
+      body.angularVelocity *= 0.92;
+
+      if (body.x < bounds.minX) {
+        body.x = bounds.minX;
+        body.vx = Math.abs(body.vx) * 0.56;
+      }
+
+      if (body.x + body.width > bounds.maxX) {
+        body.x = bounds.maxX - body.width;
+        body.vx = -Math.abs(body.vx) * 0.56;
+      }
+
+      if (body.y < bounds.minY) {
+        body.y = bounds.minY;
+        body.vy = Math.abs(body.vy) * 0.56;
+      }
+
+      if (body.y + body.height > bounds.maxY) {
+        body.y = bounds.maxY - body.height;
+        body.vy = -Math.abs(body.vy) * 0.56;
+      }
+    });
+
+    resolveLetterCollisions();
+    bodies.forEach(renderBody);
+    window.requestAnimationFrame(step);
+  };
+
+  window.requestAnimationFrame(step);
+};
+
+document.fonts?.ready.then(initializeNamePhysics);
+if (!document.fonts) {
+  window.addEventListener("load", initializeNamePhysics);
 }
 
 const openModal = (card) => {

@@ -207,6 +207,7 @@ main {
   letter-spacing: -0.02em;
   text-align: center;
   user-select: none;
+  overflow: visible;
 }
 
 .name-line {
@@ -214,44 +215,27 @@ main {
   justify-content: center;
 }
 
-.letter {
-  --fall-x: 0px;
-  --fall-rotate: 0deg;
-  position: relative;
-  display: inline-block;
-  perspective: 420px;
+.name-field.has-physics .name-line {
+  display: contents;
 }
 
-.letter::before {
-  content: attr(data-letter);
-  position: absolute;
-  inset: 0;
-  z-index: 0;
-  color: #ddddc6;
-  opacity: 0;
-  transition: opacity 120ms ease;
+.letter {
+  position: relative;
+  display: inline-block;
+  touch-action: manipulation;
 }
 
 .letter-face {
-  position: relative;
-  z-index: 1;
   display: inline-block;
   color: var(--ink);
-  transform: translate3d(0, 0, 0) rotate(0deg);
-  transform-origin: 50% 86%;
-  transition:
-    transform 920ms cubic-bezier(0.17, 0.84, 0.24, 1),
-    opacity 620ms ease 220ms;
-  will-change: transform, opacity;
+  pointer-events: none;
 }
 
-.letter.is-falling::before {
-  opacity: 1;
-}
-
-.letter.is-falling .letter-face {
-  opacity: 0;
-  transform: translate3d(var(--fall-x), 118vh, 0) rotate(var(--fall-rotate));
+.name-field.has-physics .letter {
+  position: absolute;
+  left: 0;
+  top: 0;
+  will-change: transform;
 }
 
 .category-row {
