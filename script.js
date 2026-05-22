@@ -191,9 +191,9 @@ const initializeNamePhysics = () => {
       body.y += body.vy;
       body.angle += body.angularVelocity;
 
-      body.vx *= 0.9;
-      body.vy *= 0.9;
-      body.angularVelocity *= 0.895;
+      body.vx *= 0.86;
+      body.vy *= 0.86;
+      body.angularVelocity *= 0.853;
 
       if (body.x < bounds.minX) {
         body.x = bounds.minX;
