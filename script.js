@@ -13,18 +13,12 @@ const carouselNext = document.querySelector(".carousel-next");
 
 let cursorX = 0;
 let cursorY = 0;
-let previousCursorX = 0;
-let previousCursorY = 0;
-let cursorVelocityX = 0;
-let cursorVelocityY = 0;
-let hasCursorPosition = false;
 let cursorTicking = false;
 let previousFocus = null;
 let activeSlides = [];
 let activeSlideIndex = 0;
 let touchStartX = 0;
 let touchStartY = 0;
-let lastBurstTime = 0;
 
 const hasFinePointer = window.matchMedia("(pointer: fine)").matches;
 const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -36,11 +30,6 @@ const moveCursor = () => {
 
 if (cursor && hasFinePointer) {
   window.addEventListener("pointermove", (event) => {
-    cursorVelocityX = hasCursorPosition ? event.clientX - previousCursorX : 0;
-    cursorVelocityY = hasCursorPosition ? event.clientY - previousCursorY : 0;
-    previousCursorX = event.clientX;
-    previousCursorY = event.clientY;
-    hasCursorPosition = true;
     cursorX = event.clientX;
     cursorY = event.clientY;
     cursor.classList.add("is-visible");
@@ -56,179 +45,66 @@ if (cursor && hasFinePointer) {
   });
 }
 
-const initializeNamePhysics = () => {
+const initializeNameTilt = () => {
   if (!nameField || !nameLetters.length || prefersReducedMotion) return;
 
-  const fieldRect = nameField.getBoundingClientRect();
-  const bounds = {
-    minX: -fieldRect.left,
-    maxX: window.innerWidth - fieldRect.left,
-    minY: -fieldRect.top,
-    maxY: window.innerHeight - fieldRect.top,
-  };
+  const maxTilt = 19;
+  const ease = 0.16;
+  const letters = nameLetters.map((letter) => ({
+    element: letter,
+    currentTilt: 0,
+    targetTilt: 0,
+  }));
 
-  const bodies = nameLetters.map((letter) => {
-    const rect = letter.getBoundingClientRect();
+  let isAnimating = false;
 
-    return {
-      element: letter,
-      x: rect.left - fieldRect.left,
-      y: rect.top - fieldRect.top,
-      width: rect.width,
-      height: rect.height,
-      vx: 0,
-      vy: 0,
-      angle: 0,
-      angularVelocity: 0,
-    };
-  });
+  const animate = () => {
+    let shouldContinue = false;
 
-  nameField.style.height = `${fieldRect.height}px`;
-  nameField.classList.add("has-physics");
+    letters.forEach((letter) => {
+      letter.currentTilt += (letter.targetTilt - letter.currentTilt) * ease;
 
-  const renderBody = (body) => {
-    body.element.style.transform = `translate3d(${body.x}px, ${body.y}px, 0) rotate(${body.angle}deg)`;
-  };
-
-  bodies.forEach(renderBody);
-
-  const createImpactBurst = (x, y, impulseX, impulseY) => {
-    const now = performance.now();
-
-    if (now - lastBurstTime < 90) return;
-
-    lastBurstTime = now;
-    const burst = document.createElement("span");
-    const angle = Math.atan2(impulseY, impulseX) * (180 / Math.PI);
-    burst.className = "impact-burst";
-    burst.style.left = `${x - fieldRect.left}px`;
-    burst.style.top = `${y - fieldRect.top}px`;
-    burst.style.setProperty("--burst-angle", `${angle}deg`);
-    burst.innerHTML = "<span></span><span></span><span></span><span></span><span></span>";
-    nameField.appendChild(burst);
-    window.setTimeout(() => burst.remove(), 580);
-  };
-
-  const pushBody = (body, clientX, clientY, impulseX, impulseY) => {
-    const bodyCenterX = fieldRect.left + body.x + body.width / 2;
-    const bodyCenterY = fieldRect.top + body.y + body.height / 2;
-    const distance = Math.hypot(clientX - bodyCenterX, clientY - bodyCenterY);
-    const radius = Math.max(body.width, body.height) * 0.62;
-
-    if (distance > radius) return;
-
-    const fallbackX = clientX < bodyCenterX ? 1 : -1;
-    const fallbackY = clientY < bodyCenterY ? 1 : -1;
-    const speed = Math.hypot(impulseX, impulseY);
-    const force = Math.max(8, Math.min(34, speed * 1.24));
-    const nx = speed > 0.2 ? impulseX / speed : fallbackX;
-    const ny = speed > 0.2 ? impulseY / speed : fallbackY;
-
-    body.vx += nx * force;
-    body.vy += ny * force;
-    body.angularVelocity += (nx - ny) * 0.5;
-    body.angularVelocity = Math.max(-2.4, Math.min(2.4, body.angularVelocity));
-    createImpactBurst(clientX, clientY, nx, ny);
-  };
-
-  if (hasFinePointer) {
-    nameField.addEventListener("pointermove", (event) => {
-      bodies.forEach((body) => {
-        pushBody(body, event.clientX, event.clientY, cursorVelocityX, cursorVelocityY);
-      });
-    });
-  }
-
-  nameLetters.forEach((letter, index) => {
-    letter.addEventListener("click", (event) => {
-      const body = bodies[index];
-      const rect = letter.getBoundingClientRect();
-      const xDirection = event.clientX < rect.left + rect.width / 2 ? 1 : -1;
-
-      pushBody(body, event.clientX, event.clientY, xDirection * 22, -6);
-    });
-  });
-
-  const resolveLetterCollisions = () => {
-    for (let i = 0; i < bodies.length; i += 1) {
-      for (let j = i + 1; j < bodies.length; j += 1) {
-        const a = bodies[i];
-        const b = bodies[j];
-        const ax = a.x + a.width / 2;
-        const ay = a.y + a.height / 2;
-        const bx = b.x + b.width / 2;
-        const by = b.y + b.height / 2;
-        const overlapX = (a.width + b.width) / 2 - Math.abs(ax - bx);
-        const overlapY = (a.height + b.height) / 2 - Math.abs(ay - by);
-
-        if (overlapX <= 0 || overlapY <= 0) continue;
-
-        if (overlapX < overlapY) {
-          const direction = ax < bx ? -1 : 1;
-          a.x += (overlapX / 2) * direction;
-          b.x -= (overlapX / 2) * direction;
-          const temp = a.vx;
-          a.vx = b.vx * 0.66;
-          b.vx = temp * 0.66;
-          a.angularVelocity -= direction * 0.14;
-          b.angularVelocity += direction * 0.14;
-        } else {
-          const direction = ay < by ? -1 : 1;
-          a.y += (overlapY / 2) * direction;
-          b.y -= (overlapY / 2) * direction;
-          const temp = a.vy;
-          a.vy = b.vy * 0.66;
-          b.vy = temp * 0.66;
-          a.angularVelocity += direction * 0.14;
-          b.angularVelocity -= direction * 0.14;
-        }
+      if (Math.abs(letter.targetTilt - letter.currentTilt) > 0.02) {
+        shouldContinue = true;
+      } else if (letter.targetTilt === 0) {
+        letter.element.classList.remove("is-tilting");
       }
+
+      letter.element.style.setProperty("--tilt-x", `${letter.currentTilt.toFixed(2)}deg`);
+    });
+
+    if (shouldContinue) {
+      window.requestAnimationFrame(animate);
+    } else {
+      isAnimating = false;
     }
   };
 
-  const step = () => {
-    bodies.forEach((body) => {
-      body.x += body.vx;
-      body.y += body.vy;
-      body.angle += body.angularVelocity;
+  const startAnimation = () => {
+    if (isAnimating) return;
 
-      body.vx *= 0.86;
-      body.vy *= 0.86;
-      body.angularVelocity *= 0.78;
-
-      if (body.x < bounds.minX) {
-        body.x = bounds.minX;
-        body.vx = Math.abs(body.vx) * 0.45;
-      }
-
-      if (body.x + body.width > bounds.maxX) {
-        body.x = bounds.maxX - body.width;
-        body.vx = -Math.abs(body.vx) * 0.45;
-      }
-
-      if (body.y < bounds.minY) {
-        body.y = bounds.minY;
-        body.vy = Math.abs(body.vy) * 0.45;
-      }
-
-      if (body.y + body.height > bounds.maxY) {
-        body.y = bounds.maxY - body.height;
-        body.vy = -Math.abs(body.vy) * 0.45;
-      }
-    });
-
-    resolveLetterCollisions();
-    bodies.forEach(renderBody);
-    window.requestAnimationFrame(step);
+    isAnimating = true;
+    window.requestAnimationFrame(animate);
   };
 
-  window.requestAnimationFrame(step);
+  letters.forEach((letter) => {
+    letter.element.addEventListener("pointermove", (event) => {
+      const rect = letter.element.getBoundingClientRect();
+      const pointerY = (event.clientY - rect.top) / rect.height;
+      const clampedY = Math.min(1, Math.max(0, pointerY));
+      letter.targetTilt = (0.5 - clampedY) * maxTilt * 2;
+      letter.element.classList.add("is-tilting");
+      startAnimation();
+    });
+
+    letter.element.addEventListener("pointerleave", () => {
+      letter.targetTilt = 0;
+      startAnimation();
+    });
+  });
 };
 
-document.fonts?.ready.then(initializeNamePhysics);
-if (!document.fonts) {
-  window.addEventListener("load", initializeNamePhysics);
-}
+initializeNameTilt();
 
 const openModal = (card) => {
   if (!modal || !modalTitle || !carouselTrack) return;
