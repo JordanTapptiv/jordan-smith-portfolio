@@ -35,14 +35,6 @@ if (cursor && hasFinePointer) {
   });
 }
 
-const resetNameLetters = () => {
-  nameLetters.forEach((letter) => {
-    letter.classList.remove("is-falling");
-    letter.style.removeProperty("--fall-x");
-    letter.style.removeProperty("--fall-rotate");
-  });
-};
-
 if (nameField && hasFinePointer) {
   nameLetters.forEach((letter, index) => {
     letter.addEventListener("pointerenter", (event) => {
@@ -59,8 +51,6 @@ if (nameField && hasFinePointer) {
       letter.classList.add("is-falling");
     });
   });
-
-  nameField.addEventListener("pointerleave", resetNameLetters);
 }
 
 const openModal = (card) => {

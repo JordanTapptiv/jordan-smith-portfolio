@@ -227,10 +227,8 @@ main {
   position: absolute;
   inset: 0;
   z-index: 0;
-  color: transparent;
+  color: #ddddc6;
   opacity: 0;
-  -webkit-text-stroke: 0.018em var(--ink);
-  text-stroke: 0.018em var(--ink);
   transition: opacity 120ms ease;
 }
 
