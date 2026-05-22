@@ -152,12 +152,11 @@ main {
 }
 
 .name-field {
-  --name-fill: linear-gradient(var(--ink), var(--ink));
   --name-x: 50%;
   --name-y: 50%;
   position: relative;
   margin: 0 auto;
-  color: transparent;
+  color: var(--ink);
   font-family: "Bricolage Grotesque", system-ui, sans-serif;
   font-optical-sizing: auto;
   font-variation-settings: "wdth" 100;
@@ -169,25 +168,51 @@ main {
   user-select: none;
 }
 
+.name-field::before {
+  content: "";
+  position: absolute;
+  z-index: 2;
+  inset: -8% -4%;
+  pointer-events: none;
+  opacity: 0;
+  background:
+    repeating-conic-gradient(from 0deg, var(--acid) 0 25%, transparent 0 100%),
+    radial-gradient(circle at var(--name-x) var(--name-y), rgba(213, 254, 0, 0.86), transparent 44%);
+  background-position: 0 0, 0 0;
+  background-size: 18px 18px, 100% 100%;
+  -webkit-mask-image: radial-gradient(circle at var(--name-x) var(--name-y), #000 0 22%, rgba(0, 0, 0, 0.92) 31%, transparent 46%);
+  mask-image: radial-gradient(circle at var(--name-x) var(--name-y), #000 0 22%, rgba(0, 0, 0, 0.92) 31%, transparent 46%);
+  transition: opacity 140ms ease;
+}
+
 .name-line {
   display: flex;
   justify-content: center;
+  position: relative;
+  z-index: 1;
 }
 
 .name-line span {
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  -webkit-text-stroke: 0.012em var(--ink);
-  background: var(--name-fill);
-  background-clip: text;
   display: inline-block;
-  transition: background 220ms ease;
 }
 
-.name-field.is-active {
-  --name-fill:
-    radial-gradient(circle at var(--name-x) var(--name-y), var(--acid) 0 12%, rgba(213, 254, 0, 0.86) 13% 21%, var(--ink) 34%),
-    repeating-linear-gradient(90deg, var(--acid) 0 8px, var(--ink) 8px 15px);
+.name-field.is-active::before {
+  animation: pixel-shift 520ms steps(4, end) infinite;
+  opacity: 1;
+}
+
+@keyframes pixel-shift {
+  0% {
+    background-position: 0 0, 0 0;
+  }
+
+  50% {
+    background-position: 9px 6px, 0 0;
+  }
+
+  100% {
+    background-position: 18px 18px, 0 0;
+  }
 }
 
 .category-row {
@@ -256,9 +281,8 @@ main {
 
 .section-kicker {
   margin: 0 0 18px;
-  color: var(--acid);
+  color: var(--ink);
   letter-spacing: 0.1em;
-  text-shadow: 1px 1px 0 var(--ink);
 }
 
 .contact-copy h2 {
