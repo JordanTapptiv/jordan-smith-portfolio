@@ -210,9 +210,21 @@ main {
   overflow: visible;
 }
 
+.name-field::before {
+  content: "JORDAN\A SMITH";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  color: #d5d5c5;
+  pointer-events: none;
+  white-space: pre;
+}
+
 .name-line {
   display: flex;
   justify-content: center;
+  position: relative;
+  z-index: 1;
 }
 
 .name-field.has-physics .name-line {
@@ -235,7 +247,53 @@ main {
   position: absolute;
   left: 0;
   top: 0;
+  z-index: 2;
   will-change: transform;
+}
+
+.impact-burst {
+  position: absolute;
+  z-index: 3;
+  width: 42px;
+  height: 42px;
+  pointer-events: none;
+  transform: translate(-50%, -50%) rotate(var(--burst-angle, 0deg));
+}
+
+.impact-burst span {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 18px;
+  height: 4px;
+  border-radius: 99px;
+  background: var(--acid);
+  transform-origin: 0 50%;
+  animation: burst-line 520ms ease-out forwards;
+}
+
+.impact-burst span:nth-child(1) {
+  transform: rotate(-38deg) translateX(10px);
+}
+
+.impact-burst span:nth-child(2) {
+  transform: rotate(0deg) translateX(12px);
+}
+
+.impact-burst span:nth-child(3) {
+  transform: rotate(38deg) translateX(10px);
+}
+
+@keyframes burst-line {
+  from {
+    opacity: 1;
+    scale: 0.7;
+  }
+
+  to {
+    opacity: 0;
+    scale: 1.35;
+  }
 }
 
 .category-row {

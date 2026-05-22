@@ -24,6 +24,7 @@ let activeSlides = [];
 let activeSlideIndex = 0;
 let touchStartX = 0;
 let touchStartY = 0;
+let lastBurstTime = 0;
 
 const hasFinePointer = window.matchMedia("(pointer: fine)").matches;
 const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -91,6 +92,23 @@ const initializeNamePhysics = () => {
 
   bodies.forEach(renderBody);
 
+  const createImpactBurst = (x, y, impulseX, impulseY) => {
+    const now = performance.now();
+
+    if (now - lastBurstTime < 90) return;
+
+    lastBurstTime = now;
+    const burst = document.createElement("span");
+    const angle = Math.atan2(impulseY, impulseX) * (180 / Math.PI);
+    burst.className = "impact-burst";
+    burst.style.left = `${x - fieldRect.left}px`;
+    burst.style.top = `${y - fieldRect.top}px`;
+    burst.style.setProperty("--burst-angle", `${angle}deg`);
+    burst.innerHTML = "<span></span><span></span><span></span>";
+    nameField.appendChild(burst);
+    window.setTimeout(() => burst.remove(), 580);
+  };
+
   const pushBody = (body, clientX, clientY, impulseX, impulseY) => {
     const bodyCenterX = fieldRect.left + body.x + body.width / 2;
     const bodyCenterY = fieldRect.top + body.y + body.height / 2;
@@ -102,13 +120,14 @@ const initializeNamePhysics = () => {
     const fallbackX = clientX < bodyCenterX ? 1 : -1;
     const fallbackY = clientY < bodyCenterY ? 1 : -1;
     const speed = Math.hypot(impulseX, impulseY);
-    const force = Math.max(10, Math.min(42, speed * 1.55));
+    const force = Math.max(8, Math.min(34, speed * 1.24));
     const nx = speed > 0.2 ? impulseX / speed : fallbackX;
     const ny = speed > 0.2 ? impulseY / speed : fallbackY;
 
     body.vx += nx * force;
     body.vy += ny * force;
-    body.angularVelocity += (nx - ny) * 1.8;
+    body.angularVelocity += (nx - ny) * 1.35;
+    createImpactBurst(clientX, clientY, nx, ny);
   };
 
   if (hasFinePointer) {
@@ -125,7 +144,7 @@ const initializeNamePhysics = () => {
       const rect = letter.getBoundingClientRect();
       const xDirection = event.clientX < rect.left + rect.width / 2 ? 1 : -1;
 
-      pushBody(body, event.clientX, event.clientY, xDirection * 28, -8);
+      pushBody(body, event.clientX, event.clientY, xDirection * 22, -6);
     });
   });
 
@@ -148,19 +167,19 @@ const initializeNamePhysics = () => {
           a.x += (overlapX / 2) * direction;
           b.x -= (overlapX / 2) * direction;
           const temp = a.vx;
-          a.vx = b.vx * 0.82;
-          b.vx = temp * 0.82;
-          a.angularVelocity -= direction * 0.6;
-          b.angularVelocity += direction * 0.6;
+          a.vx = b.vx * 0.66;
+          b.vx = temp * 0.66;
+          a.angularVelocity -= direction * 0.42;
+          b.angularVelocity += direction * 0.42;
         } else {
           const direction = ay < by ? -1 : 1;
           a.y += (overlapY / 2) * direction;
           b.y -= (overlapY / 2) * direction;
           const temp = a.vy;
-          a.vy = b.vy * 0.82;
-          b.vy = temp * 0.82;
-          a.angularVelocity += direction * 0.6;
-          b.angularVelocity -= direction * 0.6;
+          a.vy = b.vy * 0.66;
+          b.vy = temp * 0.66;
+          a.angularVelocity += direction * 0.42;
+          b.angularVelocity -= direction * 0.42;
         }
       }
     }
@@ -172,28 +191,28 @@ const initializeNamePhysics = () => {
       body.y += body.vy;
       body.angle += body.angularVelocity;
 
-      body.vx *= 0.925;
-      body.vy *= 0.925;
-      body.angularVelocity *= 0.92;
+      body.vx *= 0.9;
+      body.vy *= 0.9;
+      body.angularVelocity *= 0.895;
 
       if (body.x < bounds.minX) {
         body.x = bounds.minX;
-        body.vx = Math.abs(body.vx) * 0.56;
+        body.vx = Math.abs(body.vx) * 0.45;
       }
 
       if (body.x + body.width > bounds.maxX) {
         body.x = bounds.maxX - body.width;
-        body.vx = -Math.abs(body.vx) * 0.56;
+        body.vx = -Math.abs(body.vx) * 0.45;
       }
 
       if (body.y < bounds.minY) {
         body.y = bounds.minY;
-        body.vy = Math.abs(body.vy) * 0.56;
+        body.vy = Math.abs(body.vy) * 0.45;
       }
 
       if (body.y + body.height > bounds.maxY) {
         body.y = bounds.maxY - body.height;
-        body.vy = -Math.abs(body.vy) * 0.56;
+        body.vy = -Math.abs(body.vy) * 0.45;
       }
     });
 
