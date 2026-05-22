@@ -126,7 +126,8 @@ const initializeNamePhysics = () => {
 
     body.vx += nx * force;
     body.vy += ny * force;
-    body.angularVelocity += (nx - ny) * 1.35;
+    body.angularVelocity += (nx - ny) * 0.5;
+    body.angularVelocity = Math.max(-2.4, Math.min(2.4, body.angularVelocity));
     createImpactBurst(clientX, clientY, nx, ny);
   };
 
@@ -169,8 +170,8 @@ const initializeNamePhysics = () => {
           const temp = a.vx;
           a.vx = b.vx * 0.66;
           b.vx = temp * 0.66;
-          a.angularVelocity -= direction * 0.42;
-          b.angularVelocity += direction * 0.42;
+          a.angularVelocity -= direction * 0.14;
+          b.angularVelocity += direction * 0.14;
         } else {
           const direction = ay < by ? -1 : 1;
           a.y += (overlapY / 2) * direction;
@@ -178,8 +179,8 @@ const initializeNamePhysics = () => {
           const temp = a.vy;
           a.vy = b.vy * 0.66;
           b.vy = temp * 0.66;
-          a.angularVelocity += direction * 0.42;
-          b.angularVelocity -= direction * 0.42;
+          a.angularVelocity += direction * 0.14;
+          b.angularVelocity -= direction * 0.14;
         }
       }
     }
@@ -193,7 +194,7 @@ const initializeNamePhysics = () => {
 
       body.vx *= 0.86;
       body.vy *= 0.86;
-      body.angularVelocity *= 0.853;
+      body.angularVelocity *= 0.78;
 
       if (body.x < bounds.minX) {
         body.x = bounds.minX;
