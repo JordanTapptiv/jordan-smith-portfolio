@@ -5,11 +5,20 @@ const workCards = Array.from(document.querySelectorAll(".work-card"));
 const modal = document.querySelector(".work-modal");
 const modalTitle = document.querySelector("#modal-title");
 const modalClose = document.querySelector(".modal-close");
+const carouselTrack = document.querySelector(".carousel-track");
+const carouselViewport = document.querySelector(".carousel-viewport");
+const carouselCount = document.querySelector(".carousel-count");
+const carouselPrev = document.querySelector(".carousel-prev");
+const carouselNext = document.querySelector(".carousel-next");
 
 let cursorX = 0;
 let cursorY = 0;
 let cursorTicking = false;
 let previousFocus = null;
+let activeSlides = [];
+let activeSlideIndex = 0;
+let touchStartX = 0;
+let touchStartY = 0;
 
 const hasFinePointer = window.matchMedia("(pointer: fine)").matches;
 
@@ -64,13 +73,50 @@ if (nameField) {
 }
 
 const openModal = (card) => {
-  if (!modal || !modalTitle) return;
+  if (!modal || !modalTitle || !carouselTrack) return;
 
   previousFocus = document.activeElement;
   modalTitle.textContent = card.dataset.workTitle || "Work Example";
+  activeSlides = [
+    "linear-gradient(135deg, rgba(213, 254, 0, 0.24), transparent 42%)",
+    "radial-gradient(circle at 25% 24%, rgba(213, 254, 0, 0.28), transparent 30%)",
+    "linear-gradient(90deg, rgba(238, 238, 226, 0.08), transparent 36%, rgba(213, 254, 0, 0.18))",
+  ];
+  activeSlideIndex = 0;
+
+  carouselTrack.innerHTML = activeSlides
+    .map(
+      (gradient, index) => `
+        <div class="carousel-slide">
+          <div
+            class="modal-art"
+            role="img"
+            aria-label="${modalTitle.textContent} image ${index + 1}"
+            style="--slide-gradient: ${gradient}"
+          ></div>
+        </div>
+      `
+    )
+    .join("");
+
+  updateCarousel();
   modal.hidden = false;
   document.body.classList.add("modal-open");
   modalClose?.focus();
+};
+
+const updateCarousel = () => {
+  if (!carouselTrack || !carouselCount) return;
+
+  carouselTrack.style.setProperty("--slide-index", activeSlideIndex);
+  carouselCount.textContent = `${activeSlideIndex + 1} / ${activeSlides.length}`;
+};
+
+const showSlide = (direction) => {
+  if (!activeSlides.length) return;
+
+  activeSlideIndex = (activeSlideIndex + direction + activeSlides.length) % activeSlides.length;
+  updateCarousel();
 };
 
 const closeModal = () => {
@@ -104,6 +150,24 @@ workCards.forEach((card) => {
 });
 
 modalClose?.addEventListener("click", closeModal);
+carouselPrev?.addEventListener("click", () => showSlide(-1));
+carouselNext?.addEventListener("click", () => showSlide(1));
+
+carouselViewport?.addEventListener("touchstart", (event) => {
+  const touch = event.changedTouches[0];
+  touchStartX = touch.clientX;
+  touchStartY = touch.clientY;
+});
+
+carouselViewport?.addEventListener("touchend", (event) => {
+  const touch = event.changedTouches[0];
+  const deltaX = touch.clientX - touchStartX;
+  const deltaY = touch.clientY - touchStartY;
+
+  if (Math.abs(deltaX) > 44 && Math.abs(deltaX) > Math.abs(deltaY)) {
+    showSlide(deltaX < 0 ? 1 : -1);
+  }
+});
 
 modal?.addEventListener("click", (event) => {
   if (event.target === modal) {
@@ -114,5 +178,13 @@ modal?.addEventListener("click", (event) => {
 window.addEventListener("keydown", (event) => {
   if (event.key === "Escape" && modal && !modal.hidden) {
     closeModal();
+  }
+
+  if (modal && !modal.hidden && event.key === "ArrowLeft") {
+    showSlide(-1);
+  }
+
+  if (modal && !modal.hidden && event.key === "ArrowRight") {
+    showSlide(1);
   }
 });

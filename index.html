@@ -106,10 +106,17 @@
 
     <div class="work-modal" role="dialog" aria-modal="true" aria-labelledby="modal-title" hidden>
       <button class="modal-close" type="button" aria-label="Close work preview">Close</button>
-      <figure class="modal-frame">
-        <div class="modal-art" role="img" aria-label="Expanded work preview"></div>
-        <figcaption id="modal-title">Work Example</figcaption>
-      </figure>
+      <div class="modal-frame">
+        <button class="carousel-btn carousel-prev" type="button" aria-label="Previous image">Prev</button>
+        <div class="carousel-viewport" aria-live="polite">
+          <div class="carousel-track"></div>
+        </div>
+        <button class="carousel-btn carousel-next" type="button" aria-label="Next image">Next</button>
+        <div class="modal-meta">
+          <p id="modal-title">Work Example</p>
+          <p class="carousel-count" aria-label="Carousel position">1 / 1</p>
+        </div>
+      </div>
     </div>
 
     <script src="script.js"></script>
