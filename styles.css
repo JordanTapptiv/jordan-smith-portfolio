@@ -81,32 +81,20 @@ textarea {
   height: 32px;
 }
 
-.brand-mark {
-  position: relative;
-  display: inline-block;
-  width: 22px;
-  height: 22px;
-  transform: rotate(45deg);
-  border: 4px solid currentColor;
-  color: var(--acid);
+.brand-logo {
+  display: block;
+  flex: 0 0 auto;
+  object-fit: contain;
 }
 
-.brand-mark::before,
-.brand-mark::after {
-  content: "";
-  position: absolute;
-  inset: 3px;
-  border-top: 4px solid currentColor;
-  border-left: 4px solid currentColor;
+.brand-logo-top {
+  width: 32px;
+  height: 32px;
 }
 
-.brand-mark::after {
-  inset: auto 3px 3px auto;
-  width: 8px;
-  height: 8px;
-  border: 0;
-  border-right: 4px solid currentColor;
-  border-bottom: 4px solid currentColor;
+.brand-logo-footer {
+  width: 30px;
+  height: 30px;
 }
 
 main {
@@ -325,13 +313,6 @@ main {
   display: flex;
   align-items: center;
   gap: 14px;
-}
-
-.site-footer .brand-mark {
-  width: 24px;
-  height: 24px;
-  color: #000;
-  border-width: 3px;
 }
 
 @media (prefers-reduced-motion: reduce) {
