@@ -35,20 +35,30 @@ if (cursor && hasFinePointer) {
   });
 }
 
-if (nameField && hasFinePointer) {
+const knockLetter = (letter, index, clientX) => {
+  if (letter.classList.contains("is-falling")) return;
+
+  const rect = letter.getBoundingClientRect();
+  const letterCenter = rect.left + rect.width / 2;
+  const direction = clientX < letterCenter ? 1 : -1;
+  const offset = direction * (70 + (index % 3) * 26);
+  const rotation = direction * (18 + (index % 4) * 8);
+
+  letter.style.setProperty("--fall-x", `${offset}px`);
+  letter.style.setProperty("--fall-rotate", `${rotation}deg`);
+  letter.classList.add("is-falling");
+};
+
+if (nameField) {
   nameLetters.forEach((letter, index) => {
-    letter.addEventListener("pointerenter", (event) => {
-      if (letter.classList.contains("is-falling")) return;
+    if (hasFinePointer) {
+      letter.addEventListener("pointerenter", (event) => {
+        knockLetter(letter, index, event.clientX);
+      });
+    }
 
-      const rect = letter.getBoundingClientRect();
-      const letterCenter = rect.left + rect.width / 2;
-      const direction = event.clientX < letterCenter ? 1 : -1;
-      const offset = direction * (70 + (index % 3) * 26);
-      const rotation = direction * (18 + (index % 4) * 8);
-
-      letter.style.setProperty("--fall-x", `${offset}px`);
-      letter.style.setProperty("--fall-rotate", `${rotation}deg`);
-      letter.classList.add("is-falling");
+    letter.addEventListener("click", (event) => {
+      knockLetter(letter, index, event.clientX);
     });
   });
 }
