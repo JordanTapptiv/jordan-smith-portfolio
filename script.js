@@ -104,7 +104,7 @@ const initializeNamePhysics = () => {
     burst.style.left = `${x - fieldRect.left}px`;
     burst.style.top = `${y - fieldRect.top}px`;
     burst.style.setProperty("--burst-angle", `${angle}deg`);
-    burst.innerHTML = "<span></span><span></span><span></span>";
+    burst.innerHTML = "<span></span><span></span><span></span><span></span><span></span>";
     nameField.appendChild(burst);
     window.setTimeout(() => burst.remove(), 580);
   };
