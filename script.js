@@ -235,23 +235,17 @@ const openModal = (card) => {
 
   previousFocus = document.activeElement;
   modalTitle.textContent = card.dataset.workTitle || "Work Example";
-  activeSlides = [
-    "linear-gradient(135deg, rgba(213, 254, 0, 0.24), transparent 42%)",
-    "radial-gradient(circle at 25% 24%, rgba(213, 254, 0, 0.28), transparent 30%)",
-    "linear-gradient(90deg, rgba(238, 238, 226, 0.08), transparent 36%, rgba(213, 254, 0, 0.18))",
-  ];
+  activeSlides = (card.dataset.slides || "")
+    .split("|")
+    .map((slide) => slide.trim())
+    .filter(Boolean);
   activeSlideIndex = 0;
 
   carouselTrack.innerHTML = activeSlides
     .map(
-      (gradient, index) => `
+      (src, index) => `
         <div class="carousel-slide">
-          <div
-            class="modal-art"
-            role="img"
-            aria-label="${modalTitle.textContent} image ${index + 1}"
-            style="--slide-gradient: ${gradient}"
-          ></div>
+          <img class="modal-image" src="${src}" alt="${modalTitle.textContent} image ${index + 1}" />
         </div>
       `
     )

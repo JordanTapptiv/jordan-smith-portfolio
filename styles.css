@@ -345,9 +345,18 @@ main {
   transition: transform 180ms ease;
 }
 
+.work-cover {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
 .work-card::before {
   content: "";
   position: absolute;
+  z-index: 1;
   inset: 0;
   background:
     linear-gradient(135deg, rgba(213, 254, 0, 0.26), transparent 42%),
@@ -494,6 +503,16 @@ main {
     linear-gradient(135deg, rgba(213, 254, 0, 0.2), transparent 42%),
     repeating-linear-gradient(90deg, transparent 0 18px, rgba(238, 238, 226, 0.04) 19px 20px),
     var(--ink);
+  box-shadow: 0 28px 80px rgba(0, 0, 0, 0.46);
+}
+
+.modal-image {
+  display: block;
+  width: 100%;
+  max-height: calc(100vh - 190px);
+  border-radius: var(--radius);
+  object-fit: contain;
+  background: var(--ink);
   box-shadow: 0 28px 80px rgba(0, 0, 0, 0.46);
 }
 
