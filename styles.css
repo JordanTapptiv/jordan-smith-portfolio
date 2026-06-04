@@ -329,7 +329,7 @@ main {
 .work-grid {
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  gap: 48px;
   width: var(--content);
   margin: 120px auto 0;
 }
@@ -337,7 +337,7 @@ main {
 .work-card {
   position: relative;
   display: block;
-  min-height: clamp(260px, 30.5vw, 439px);
+  aspect-ratio: 16 / 9;
   overflow: hidden;
   border-radius: var(--radius);
   background: var(--ink);
@@ -472,7 +472,7 @@ main {
 
 .modal-frame {
   position: relative;
-  width: min(1320px, calc(100vw - 96px));
+  width: min(1320px, calc(100vw - 224px));
   margin: 0;
   color: var(--paper);
 }
@@ -560,11 +560,11 @@ main {
 }
 
 .carousel-prev {
-  left: 18px;
+  left: -88px;
 }
 
 .carousel-next {
-  right: 18px;
+  right: -88px;
 }
 
 .modal-close {
@@ -669,11 +669,11 @@ main {
 
   .work-grid {
     margin-top: 72px;
+    gap: 48px;
   }
 
   .work-card {
-    min-height: 230px;
-    padding: 20px;
+    min-height: 0;
   }
 
   .cursor-dot {
