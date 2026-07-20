@@ -10,6 +10,8 @@ const carouselViewport = document.querySelector(".carousel-viewport");
 const carouselCount = document.querySelector(".carousel-count");
 const carouselPrev = document.querySelector(".carousel-prev");
 const carouselNext = document.querySelector(".carousel-next");
+const contactForm = document.querySelector("#contact-form");
+const contactStatus = document.querySelector(".form-status");
 
 let cursorX = 0;
 let cursorY = 0;
@@ -338,5 +340,41 @@ window.addEventListener("keydown", (event) => {
 
   if (modal && !modal.hidden && event.key === "ArrowRight") {
     showSlide(1);
+  }
+});
+
+contactForm?.addEventListener("submit", async (event) => {
+  event.preventDefault();
+
+  const submitButton = contactForm.querySelector("button[type='submit']");
+  const formData = new FormData(contactForm);
+
+  if (formData.get("_honey")) return;
+
+  contactStatus.textContent = "Sending...";
+  contactStatus.className = "form-status is-visible";
+  submitButton.disabled = true;
+
+  try {
+    const response = await fetch(contactForm.action, {
+      method: "POST",
+      body: formData,
+      headers: {
+        Accept: "application/json",
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error("Message failed to send");
+    }
+
+    contactForm.reset();
+    contactStatus.textContent = "Message sent. Thanks for reaching out.";
+    contactStatus.className = "form-status is-visible is-success";
+  } catch (error) {
+    contactStatus.textContent = "Message could not be sent. Please try again.";
+    contactStatus.className = "form-status is-visible is-error";
+  } finally {
+    submitButton.disabled = false;
   }
 });

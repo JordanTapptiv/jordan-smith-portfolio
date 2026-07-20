@@ -405,6 +405,11 @@ main {
   gap: 18px;
 }
 
+.form-honey {
+  position: absolute;
+  left: -9999px;
+}
+
 .contact-form label {
   display: grid;
   gap: 8px;
@@ -449,11 +454,41 @@ main {
   transition: transform 160ms ease, background 160ms ease;
 }
 
+.contact-form button:disabled {
+  cursor: wait;
+  opacity: 0.7;
+  transform: none;
+}
+
 .contact-form button:hover,
 .contact-form button:focus-visible {
   background: #000;
   outline: 0;
   transform: translateY(-2px);
+}
+
+.form-status {
+  display: none;
+  margin: -4px 0 0;
+  border: 2px solid var(--ink);
+  border-radius: var(--radius);
+  padding: 12px 14px;
+  color: var(--ink);
+  font-size: 13px;
+  letter-spacing: 0.1em;
+}
+
+.form-status.is-visible {
+  display: block;
+}
+
+.form-status.is-success {
+  background: var(--acid);
+}
+
+.form-status.is-error {
+  background: var(--ink);
+  color: var(--paper);
 }
 
 .work-modal {

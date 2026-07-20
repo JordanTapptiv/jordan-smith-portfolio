@@ -101,7 +101,16 @@
           <p class="section-kicker">Contact</p>
           <h2 id="contact-title">Let’s build the next thing.</h2>
         </div>
-        <form class="contact-form" action="mailto:hello@example.com" method="post" enctype="text/plain">
+        <form
+          id="contact-form"
+          class="contact-form"
+          action="https://formsubmit.co/ajax/jordan.smith@tapptiv.com"
+          method="post"
+        >
+          <input type="text" name="_honey" tabindex="-1" autocomplete="off" class="form-honey" aria-hidden="true" />
+          <input type="hidden" name="_subject" value="New portfolio contact form message" />
+          <input type="hidden" name="_template" value="box" />
+          <input type="hidden" name="_captcha" value="false" />
           <label>
             <span>Name</span>
             <input type="text" name="name" autocomplete="name" required />
@@ -115,6 +124,7 @@
             <textarea name="message" rows="5" required></textarea>
           </label>
           <button type="submit">Send</button>
+          <p class="form-status" role="status" aria-live="polite"></p>
         </form>
       </section>
     </main>
