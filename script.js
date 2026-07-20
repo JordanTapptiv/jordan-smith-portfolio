@@ -347,6 +347,16 @@ contactForm?.addEventListener("submit", async (event) => {
   event.preventDefault();
 
   const submitButton = contactForm.querySelector("button[type='submit']");
+
+  if (!submitButton || !contactStatus) return;
+
+  if (!contactForm.checkValidity()) {
+    contactStatus.textContent = "Please fill out each field before sending.";
+    contactStatus.className = "form-status is-visible is-error";
+    contactForm.reportValidity();
+    return;
+  }
+
   const formData = new FormData(contactForm);
 
   if (formData.get("_honey")) return;
@@ -372,7 +382,7 @@ contactForm?.addEventListener("submit", async (event) => {
     contactStatus.textContent = "Message sent. Thanks for reaching out.";
     contactStatus.className = "form-status is-visible is-success";
   } catch (error) {
-    contactStatus.textContent = "Message could not be sent. Please try again.";
+    contactStatus.textContent = "Message could not be sent. Please email jordan.smith@tapptiv.com directly.";
     contactStatus.className = "form-status is-visible is-error";
   } finally {
     submitButton.disabled = false;
